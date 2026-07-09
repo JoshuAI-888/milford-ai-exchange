@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import { BookOpen, FolderKanban, Home, Menu, ShieldCheck, Sparkles, Users, X } from 'lucide-react';
 
 const navItems = [
   ['Dashboard', '/dashboard', Home],
-  ['Prompts', '/prompts', BookOpen],
+  ['Prompt Library', '/prompts', BookOpen],
   ['Collections', '/collections', FolderKanban],
   ['Teams', '/teams', Users],
   ['Submit Prompt', '/submit', Sparkles],
@@ -15,12 +16,92 @@ const navItems = [
 
 export function MobileNavMenu() {
   const [open, setOpen] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const pathname = usePathname();
+  const router = useRouter();
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+
+      if (event.key === 'Tab') {
+        const drawer = drawerRef.current;
+        if (!drawer) {
+          return;
+        }
+
+        const focusable = drawer.querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+        if (!focusable.length) {
+          event.preventDefault();
+          return;
+        }
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleKeyDown);
+    drawerRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', handleKeyDown);
+      triggerRef.current?.focus();
+    };
+  }, [open]);
+
+  const handleNavigate = (href: string) => {
+    if (href === pathname) {
+      setOpen(false);
+      return;
+    }
+
+    setOpen(false);
+    window.setTimeout(() => router.push(href), 220);
+  };
+
+  const handleTouchStart = (event: React.TouchEvent) => {
+    setTouchStartX(event.touches[0]?.clientX ?? null);
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent) => {
+    if (touchStartX === null) {
+      return;
+    }
+
+    const delta = (event.changedTouches[0]?.clientX ?? 0) - touchStartX;
+    if (delta < -70) {
+      setOpen(false);
+    }
+    setTouchStartX(null);
+  };
 
   return (
     <div className="lg:hidden">
       <button
+        ref={triggerRef}
         type="button"
-        aria-label="Open navigation menu"
+        aria-label={open ? 'Close navigation' : 'Open navigation'}
         aria-expanded={open}
         aria-controls="mobile-navigation"
         onClick={() => setOpen((value) => !value)}
@@ -29,46 +110,62 @@ export function MobileNavMenu() {
         {open ? <X size={18} /> : <Menu size={18} />}
       </button>
 
-      {open ? (
-        <div className="fixed inset-0 z-20 bg-black/35" onClick={() => setOpen(false)}>
-          <div
-            id="mobile-navigation"
-            className="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-milford-charcoal p-5 text-white shadow-xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-orange-200">
-                  Milford
-                </p>
-                <p className="mt-1 text-lg font-semibold">AI Exchange</p>
-              </div>
-              <button
-                type="button"
-                aria-label="Close navigation menu"
-                onClick={() => setOpen(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/10"
-              >
-                <X size={18} />
-              </button>
+      <div
+        className={`fixed inset-0 z-20 transition-opacity duration-300 ease-in-out ${open ? 'pointer-events-auto bg-black/40' : 'pointer-events-none bg-transparent'}`}
+        aria-hidden={!open}
+        onClick={() => setOpen(false)}
+      >
+        <div
+          id="mobile-navigation"
+          ref={drawerRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation drawer"
+          tabIndex={-1}
+          className={`absolute inset-y-0 left-0 w-[82vw] max-w-[280px] bg-milford-charcoal p-5 text-white shadow-2xl transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : '-translate-x-full'}`}
+          onClick={(event) => event.stopPropagation()}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-orange-200">
+                Milford
+              </p>
+              <p className="mt-1 text-lg font-semibold">AI Exchange</p>
             </div>
+            <button
+              type="button"
+              aria-label="Close navigation"
+              onClick={() => setOpen(false)}
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/10"
+            >
+              <X size={18} />
+            </button>
+          </div>
 
-            <nav className="mt-8 space-y-2">
-              {navItems.map(([label, href, Icon]) => (
+          <nav className="mt-8 space-y-2" aria-label="Mobile navigation">
+            {navItems.map(([label, href, Icon]) => {
+              const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+
+              return (
                 <Link
                   key={href}
                   href={href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handleNavigate(href);
+                  }}
+                  className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-100 transition ${isActive ? 'bg-white/15 text-white shadow-inner' : 'hover:bg-white/10'}`}
                 >
                   <Icon size={18} />
                   {label}
                 </Link>
-              ))}
-            </nav>
-          </div>
+              );
+            })}
+          </nav>
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }
