@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BookOpen, FolderKanban, Home, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { MobileNavMenu } from '@/components/layout/mobile-nav-menu';
 
 const nav = [
   ['Dashboard', '/dashboard', Home],
@@ -54,13 +55,16 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <main className="lg:pl-72">
         <header className="sticky top-0 z-10 border-b border-stone-200/80 bg-white/85 px-6 py-4 backdrop-blur lg:px-8">
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-sm font-semibold text-milford-orange">
-                Invested in better AI habits
-              </div>
-              <h1 className="text-xl font-bold text-milford-charcoal">Milford AI Exchange</h1>
+            <div className="flex items-center gap-3">
+              <MobileNavMenu />
+              <Link href="/dashboard" className="block">
+                <div className="text-sm font-semibold text-milford-orange">
+                  Invested in better AI habits
+                </div>
+                <h1 className="text-xl font-bold text-milford-charcoal">Milford AI Exchange</h1>
+              </Link>
             </div>
-            <Link href="/submit" className="btn-primary">
+            <Link href="/submit" className="btn-primary hidden sm:inline-flex">
               Submit prompt
             </Link>
           </div>

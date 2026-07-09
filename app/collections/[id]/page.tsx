@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
+import { BackButton } from '@/components/layout/back-button';
 import { Shell } from '@/components/layout/shell';
 import { createClient } from '@/lib/supabase/server';
 
@@ -70,6 +71,9 @@ export default async function Collection({
   return (
     <Shell>
       <div className="space-y-8">
+        <div className="flex items-center justify-between gap-3">
+          <BackButton />
+        </div>
         <div className="rounded-[32px] border border-stone-200/80 bg-milford-charcoal px-8 py-8 text-white shadow-soft lg:px-10 lg:py-10">
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-orange-200">
             Prompt collection
