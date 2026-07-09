@@ -1,3 +1,43 @@
 import { Shell } from '@/components/layout/shell';
-import { teams } from '@/lib/data';
-export default function Submit(){return <Shell><div className="mx-auto max-w-4xl space-y-6"><div><h2 className="text-3xl font-extrabold text-milford-charcoal">Submit prompt</h2><p className="mt-2 text-slate-600">Submissions enter pending review. Do not include client data or confidential holdings in demo content.</p></div><form className="card grid gap-4 p-6"><input className="input" placeholder="Prompt title"/><textarea className="input min-h-24" placeholder="What problem does this prompt solve?"/><div className="grid gap-4 md:grid-cols-3"><select className="input"><option>Category</option>{teams.map(t=><option key={t}>{t}</option>)}</select><select className="input"><option>Model</option><option>Claude</option><option>ChatGPT</option><option>Copilot</option></select><select className="input"><option>Risk level</option><option>Low</option><option>Medium</option><option>High</option></select></div><input className="input" placeholder="Tags e.g. earnings, research, client"/><textarea className="input min-h-64 font-mono" placeholder="Paste prompt body here. Use {{variables}} for reusable inputs."/><textarea className="input min-h-32" placeholder="Example input/output or acceptance criteria"/><div className="flex justify-end gap-3"><button type="button" className="btn-secondary">Save draft</button><button type="button" className="btn-primary">Submit for review</button></div></form></div></Shell>}
+import { submitPromptAction } from './actions';
+
+export default function SubmitPromptPage() {
+  return (
+    <Shell>
+      <form action={submitPromptAction} className="mx-auto max-w-3xl space-y-6">
+        <div>
+          <h1 className="text-4xl font-bold text-milford-charcoal">
+            Submit prompt
+          </h1>
+          <p className="mt-2 text-slate-600">
+            Submit a reusable Milford prompt for review.
+          </p>
+        </div>
+
+        <input name="title" required className="w-full rounded-xl border p-3" placeholder="Prompt title" />
+        <input name="description" required className="w-full rounded-xl border p-3" placeholder="Description" />
+        <textarea name="body" required className="min-h-48 w-full rounded-xl border p-3" placeholder="Prompt body" />
+        <textarea name="expectedOutput" className="min-h-24 w-full rounded-xl border p-3" placeholder="Expected output" />
+
+        <select name="model" className="w-full rounded-xl border p-3" defaultValue="Claude">
+          <option>Claude</option>
+          <option>ChatGPT</option>
+          <option>Copilot</option>
+          <option>Gemini</option>
+        </select>
+
+        <select name="risk" className="w-full rounded-xl border p-3" defaultValue="low">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+
+        <input name="ownerName" className="w-full rounded-xl border p-3" placeholder="Owner name" defaultValue="Demo User" />
+
+        <button type="submit" className="btn-primary">
+          Submit for review
+        </button>
+      </form>
+    </Shell>
+  );
+}

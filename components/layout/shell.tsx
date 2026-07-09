@@ -1,33 +1,72 @@
 import Link from 'next/link';
-import { BookOpen, FolderKanban, Home, ShieldCheck, Users } from 'lucide-react';
+import { BookOpen, FolderKanban, Home, ShieldCheck, Sparkles, Users } from 'lucide-react';
 
 const nav = [
-  ['Dashboard','/dashboard',Home], ['Prompts','/prompts',BookOpen], ['Collections','/collections/investment-committee-pack',FolderKanban], ['Teams','/teams/investment-research',Users], ['Admin','/admin',ShieldCheck]
+  ['Dashboard', '/dashboard', Home],
+  ['Prompts', '/prompts', BookOpen],
+  ['Collections', '/collections', FolderKanban],
+  ['Teams', '/teams', Users],
+  ['Admin', '/admin', ShieldCheck],
 ] as const;
 
 export function Shell({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-screen bg-milford-cream">
-    <aside className="fixed inset-y-0 left-0 hidden w-72 bg-milford-charcoal p-6 text-white lg:block">
-      <div className="mb-10">
-        <div className="text-xs uppercase tracking-[0.3em] text-orange-200">Milford</div>
-        <div className="mt-2 text-2xl font-bold">AI Exchange</div>
-        <p className="mt-3 text-sm text-slate-300">Prompt, collection and team workspace MVP.</p>
-      </div>
-      <nav className="space-y-2">
-        {nav.map(([label, href, Icon]) => <Link key={href} href={href} className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-100 hover:bg-white/10"><Icon size={18}/>{label}</Link>)}
-      </nav>
-      <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-white/10 p-4 text-sm text-slate-200">
-        <b className="text-white">MVP guardrail:</b><br/>No client data. No advice output. Reusable IP first.
-      </div>
-    </aside>
-    <main className="lg:pl-72">
-      <header className="sticky top-0 z-10 border-b border-milford-mist bg-white/90 px-6 py-4 backdrop-blur">
-        <div className="flex items-center justify-between">
-          <div><div className="text-sm font-semibold text-milford-orange">Invested in better AI habits</div><h1 className="text-xl font-bold text-milford-charcoal">Milford AI Exchange</h1></div>
-          <Link href="/submit" className="btn-primary">Submit prompt</Link>
+  return (
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(228,113,38,0.12),_transparent_32%),linear-gradient(135deg,_#f8f2ea_0%,_#f7f4ef_100%)]">
+      <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-white/10 bg-milford-charcoal p-6 text-white lg:block">
+        <div className="rounded-[24px] border border-white/10 bg-white/10 p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-2xl bg-milford-orange/20 p-2 text-milford-orange">
+              <Sparkles size={18} />
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-orange-200">
+                Milford
+              </div>
+              <div className="text-xl font-bold">AI Exchange</div>
+            </div>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-slate-300">
+            A reusable AI capability workspace for prompt, collection, and team collaboration.
+          </p>
         </div>
-      </header>
-      <div className="p-6">{children}</div>
-    </main>
-  </div>
+
+        <nav className="mt-8 space-y-2">
+          {nav.map(([label, href, Icon]) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+            >
+              <Icon size={18} />
+              {label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="absolute bottom-6 left-6 right-6 rounded-[24px] border border-white/10 bg-white/10 p-4 text-sm text-slate-200">
+          <p className="font-semibold text-white">Demo guardrail</p>
+          <p className="mt-2 leading-6">
+            Reusable IP first. No client data. No advice output.
+          </p>
+        </div>
+      </aside>
+
+      <main className="lg:pl-72">
+        <header className="sticky top-0 z-10 border-b border-stone-200/80 bg-white/85 px-6 py-4 backdrop-blur lg:px-8">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-milford-orange">
+                Invested in better AI habits
+              </div>
+              <h1 className="text-xl font-bold text-milford-charcoal">Milford AI Exchange</h1>
+            </div>
+            <Link href="/submit" className="btn-primary">
+              Submit prompt
+            </Link>
+          </div>
+        </header>
+        <div className="p-6 lg:p-8">{children}</div>
+      </main>
+    </div>
+  );
 }
