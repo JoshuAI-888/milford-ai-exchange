@@ -1,4 +1,118 @@
+import { notFound, redirect } from 'next/navigation';
 import { Shell } from '@/components/layout/shell';
-import { prompts } from '@/lib/data';
-import { notFound } from 'next/navigation';
-export default function PromptDetail({params}:{params:{id:string}}){const p=prompts.find(x=>x.id===params.id); if(!p) return notFound(); return <Shell><div className="grid gap-6 lg:grid-cols-[1fr_340px]"><main className="space-y-5"><div className="card p-6"><div className="text-sm font-bold text-milford-orange">{p.category}</div><h2 className="mt-2 text-3xl font-extrabold text-milford-charcoal">{p.title}</h2><p className="mt-3 text-slate-600">{p.description}</p><div className="mt-4 flex flex-wrap gap-2">{p.tags.map(t=><span key={t} className="badge bg-milford-cream text-milford-charcoal">{t}</span>)}</div></div><div className="card p-6"><div className="mb-3 flex items-center justify-between"><h3 className="text-xl font-bold">Prompt body</h3><button className="btn-primary">Copy prompt</button></div><pre className="whitespace-pre-wrap rounded-2xl bg-slate-950 p-5 text-sm leading-7 text-slate-100">{p.body}</pre></div><div className="card p-6"><h3 className="text-xl font-bold">Comments & discussion</h3><div className="mt-4 space-y-3"><div className="rounded-xl bg-milford-cream p-4 text-sm"><b>Team Admin:</b> Strong prompt. Add a reminder to separate fact from inference in next version.</div><div className="rounded-xl bg-milford-cream p-4 text-sm"><b>Analyst:</b> Useful for first-pass review. Would like sector-specific variants.</div><textarea className="input min-h-24" placeholder="Add improvement suggestion..."/><button className="btn-secondary">Post comment</button></div></div></main><aside className="space-y-4"><div className="card p-5"><h3 className="font-bold">Governance</h3><dl className="mt-3 space-y-2 text-sm"><div className="flex justify-between"><dt>Status</dt><dd>{p.status}</dd></div><div className="flex justify-between"><dt>Risk</dt><dd>{p.risk}</dd></div><div className="flex justify-between"><dt>Owner</dt><dd>{p.owner}</dd></div><div className="flex justify-between"><dt>Version</dt><dd>v{p.version}</dd></div><div className="flex justify-between"><dt>Model</dt><dd>{p.model}</dd></div></dl></div><div className="card p-5"><h3 className="font-bold">Version history</h3><ol className="mt-3 space-y-2 text-sm text-slate-600"><li>v1.0 Approved initial version</li><li>Draft v1.1 Add sector variants</li></ol></div></aside></div></Shell>}
+import { createClient } from '@/lib/supabase/server';
+
+export default async function PromptDetail({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data: promptBySlug, error: slugError } = await supabase
+    .from('prompts')
+    .select(`
+      id,title,slug,description,body,expected_output,model,risk,status,version,owner_name,updated_at,
+      team:teams(name),
+      category:categories(name)
+    `)
+    .eq('slug', id)
+    .maybeSingle();
+
+  let prompt = promptBySlug;
+  let error = slugError;
+
+  if (!prompt) {
+    const { data: promptById, error: idError } = await supabase
+      .from('prompts')
+      .select(`
+        id,title,slug,description,body,expected_output,model,risk,status,version,owner_name,updated_at,
+        team:teams(name),
+        category:categories(name)
+      `)
+      .eq('id', id)
+      .maybeSingle();
+
+    prompt = promptById;
+    error = idError;
+  }
+
+  if (error || !prompt) return notFound();
+
+  if (prompt.slug && prompt.slug !== id) {
+    redirect(`/prompts/${prompt.slug}`);
+  }
+
+  const team = Array.isArray((prompt as unknown as { team?: unknown }).team)
+    ? (((prompt as unknown as { team?: Array<{ name: string }> }).team?.[0] ?? null))
+    : (((prompt as unknown as { team?: { name: string } | null }).team ?? null));
+
+  const category = Array.isArray((prompt as unknown as { category?: unknown }).category)
+    ? (((prompt as unknown as { category?: Array<{ name: string }> }).category?.[0] ?? null))
+    : (((prompt as unknown as { category?: { name: string } | null }).category ?? null));
+
+  return (
+    <Shell>
+      <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+        <main className="space-y-6">
+          <div className="rounded-[32px] border border-stone-200/80 bg-milford-charcoal px-8 py-8 text-white shadow-soft lg:px-10 lg:py-10">
+            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-orange-200">
+              Approved prompt
+            </p>
+            <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">{prompt.title}</h1>
+            <p className="mt-5 max-w-4xl text-lg leading-8 text-slate-300">{prompt.description}</p>
+          </div>
+
+          <section className="card p-6">
+            <h2 className="text-2xl font-bold text-milford-charcoal">Prompt body</h2>
+            <pre className="mt-4 whitespace-pre-wrap rounded-[24px] bg-stone-950 p-6 font-mono text-sm leading-7 text-stone-100">
+              {prompt.body ?? 'No prompt body has been added yet.'}
+            </pre>
+          </section>
+
+          <section className="card p-6">
+            <h2 className="text-2xl font-bold text-milford-charcoal">Expected output</h2>
+            <p className="mt-4 whitespace-pre-wrap text-slate-700">
+              {prompt.expected_output || 'No expected output provided.'}
+            </p>
+          </section>
+        </main>
+
+        <aside className="space-y-4">
+          <section className="card p-6">
+            <h2 className="text-lg font-bold text-milford-charcoal">Metadata</h2>
+            <dl className="mt-4 space-y-3 text-sm">
+              <div>
+                <dt className="text-slate-400">Team</dt>
+                <dd className="mt-1 font-medium text-milford-charcoal">{team?.name ?? 'Unassigned'}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-400">Category</dt>
+                <dd className="mt-1 font-medium text-milford-charcoal">{category?.name ?? 'Uncategorised'}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-400">Model</dt>
+                <dd className="mt-1 font-medium text-milford-charcoal">{prompt.model}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-400">Risk</dt>
+                <dd className="mt-1 font-medium text-milford-charcoal">{prompt.risk}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-400">Owner</dt>
+                <dd className="mt-1 font-medium text-milford-charcoal">{prompt.owner_name ?? 'Unassigned'}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-400">Version</dt>
+                <dd className="mt-1 font-medium text-milford-charcoal">v{prompt.version}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <button className="btn-primary w-full">Copy prompt</button>
+        </aside>
+      </div>
+    </Shell>
+  );
+}
