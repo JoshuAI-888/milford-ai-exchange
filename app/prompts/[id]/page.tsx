@@ -1,5 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
+import { BackButton } from '@/components/layout/back-button';
 import { Shell } from '@/components/layout/shell';
+import { PromptCopyButton } from '@/components/prompt-copy-button';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function PromptDetail({
@@ -56,6 +58,9 @@ export default async function PromptDetail({
     <Shell>
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <main className="space-y-6">
+          <div className="flex items-center justify-between gap-3">
+            <BackButton />
+          </div>
           <div className="rounded-[32px] border border-stone-200/80 bg-milford-charcoal px-8 py-8 text-white shadow-soft lg:px-10 lg:py-10">
             <p className="text-sm font-semibold uppercase tracking-[0.35em] text-orange-200">
               Approved prompt
@@ -110,7 +115,7 @@ export default async function PromptDetail({
             </dl>
           </section>
 
-          <button className="btn-primary w-full">Copy prompt</button>
+          <PromptCopyButton promptBody={prompt.body} />
         </aside>
       </div>
     </Shell>

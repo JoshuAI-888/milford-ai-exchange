@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { BackButton } from '@/components/layout/back-button';
 import { Shell } from '@/components/layout/shell';
 import { createClient } from '@/lib/supabase/server';
 import {
@@ -32,9 +33,12 @@ export default async function AdminPromptReview({
   return (
     <Shell>
       <div className="space-y-8">
-        <Link href="/admin" className="text-sm font-bold text-milford-orange">
-          ← Back to admin queue
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <BackButton fallbackHref="/admin" />
+          <Link href="/admin" className="text-sm font-bold text-milford-orange">
+            ← Back to admin queue
+          </Link>
+        </div>
 
         <div className="rounded-[28px] bg-milford-charcoal px-10 py-10 text-white shadow-lg">
           <div className="text-sm font-semibold uppercase tracking-[0.35em] text-orange-200">
