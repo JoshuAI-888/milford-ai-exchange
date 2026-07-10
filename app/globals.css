@@ -25,3 +25,9 @@ body {
 .btn-secondary {
   @apply rounded-2xl border border-milford-mist bg-white px-4 py-2 text-sm font-semibold text-milford-charcoal transition hover:bg-milford-cream;
 }
+
+@media (max-width: 1023px) {
+  body[data-mobile-nav-open='true'] .mobile-content-panel {
+    transform: translateX(300px);
+  }
+}

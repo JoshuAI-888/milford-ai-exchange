@@ -23,6 +23,8 @@ export function MobileNavMenu() {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    document.body.dataset.mobileNavOpen = open ? 'true' : 'false';
+
     if (!open) {
       return;
     }
@@ -65,6 +67,7 @@ export function MobileNavMenu() {
 
     return () => {
       document.body.style.overflow = '';
+      delete document.body.dataset.mobileNavOpen;
       document.removeEventListener('keydown', handleKeyDown);
       triggerRef.current?.focus();
     };
@@ -111,7 +114,7 @@ export function MobileNavMenu() {
       </button>
 
       <div
-        className={`fixed inset-0 z-20 transition-opacity duration-300 ease-in-out ${open ? 'pointer-events-auto bg-black/40' : 'pointer-events-none bg-transparent'}`}
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ease-in-out ${open ? 'pointer-events-auto bg-[rgba(0,0,0,0.45)]' : 'pointer-events-none bg-transparent'}`}
         aria-hidden={!open}
         onClick={() => setOpen(false)}
       >
@@ -122,12 +125,12 @@ export function MobileNavMenu() {
           aria-modal="true"
           aria-label="Navigation drawer"
           tabIndex={-1}
-          className={`absolute inset-y-0 left-0 w-[82vw] max-w-[280px] bg-milford-charcoal p-5 text-white shadow-2xl transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : '-translate-x-full'}`}
+          className={`fixed inset-y-0 left-0 z-50 flex h-screen w-[300px] flex-col rounded-r-[24px] bg-milford-charcoal p-5 text-white shadow-xl transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : '-translate-x-full'}`}
           onClick={(event) => event.stopPropagation()}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between bg-milford-charcoal">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-orange-200">
                 Milford
@@ -138,13 +141,13 @@ export function MobileNavMenu() {
               type="button"
               aria-label="Close navigation"
               onClick={() => setOpen(false)}
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/10"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/20 bg-milford-charcoal text-white hover:bg-white/10"
             >
               <X size={18} />
             </button>
           </div>
 
-          <nav className="mt-8 space-y-2" aria-label="Mobile navigation">
+          <nav className="mt-8 flex-1 space-y-2" aria-label="Mobile navigation">
             {navItems.map(([label, href, Icon]) => {
               const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
 
@@ -156,14 +159,18 @@ export function MobileNavMenu() {
                     event.preventDefault();
                     handleNavigate(href);
                   }}
-                  className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-100 transition ${isActive ? 'bg-white/15 text-white shadow-inner' : 'hover:bg-white/10'}`}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-white transition ${isActive ? 'bg-white/15' : 'hover:bg-white/10'}`}
                 >
-                  <Icon size={18} />
+                  <Icon size={18} className="text-slate-300" />
                   {label}
                 </Link>
               );
             })}
           </nav>
+
+          <div className="mt-6 border-t border-white/10 bg-milford-charcoal pt-4 text-xs font-medium text-white/90">
+            Milford AI Exchange
+          </div>
         </div>
       </div>
     </div>
