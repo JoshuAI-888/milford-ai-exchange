@@ -52,7 +52,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <main className="lg:pl-72">
+      <main className="relative z-0 lg:pl-72">
         <header className="sticky top-0 z-10 border-b border-stone-200/80 bg-white/85 px-6 py-4 backdrop-blur lg:px-8">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -69,7 +69,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
         </header>
-        <div className="p-6 lg:p-8">{children}</div>
+        <div className="mobile-content-panel p-6 transition-transform duration-300 ease-in-out lg:p-8">{children}</div>
       </main>
     </div>
   );
