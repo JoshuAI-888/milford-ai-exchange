@@ -43,13 +43,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
-
-        <div className="absolute bottom-6 left-6 right-6 rounded-[24px] border border-white/10 bg-white/10 p-4 text-sm text-slate-200">
-          <p className="font-semibold text-white">Demo guardrail</p>
-          <p className="mt-2 leading-6">
-            Reusable IP first. No client data. No advice output.
-          </p>
-        </div>
       </aside>
 
       <main className="relative z-0 lg:pl-72">
