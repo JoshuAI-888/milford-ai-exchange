@@ -13,7 +13,7 @@ const nav = [
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(228,113,38,0.12),_transparent_32%),linear-gradient(135deg,_#f8f2ea_0%,_#f7f4ef_100%)]">
-      <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-white/10 bg-milford-charcoal p-6 text-white lg:block">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-white/10 bg-milford-charcoal p-6 text-white lg:block">
         <div className="rounded-[24px] border border-white/10 bg-white/10 p-4">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-milford-orange/20 p-2 text-milford-orange">
